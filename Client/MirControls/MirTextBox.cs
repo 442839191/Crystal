@@ -142,6 +142,7 @@ namespace Client.MirControls
         public bool CanLoseFocus;
         public readonly TextBox TextBox;
         private Pen CaretPen;
+        private bool _applyingDialog;
 
         private static Point HiddenTextBoxLocation
         {
@@ -222,13 +223,27 @@ namespace Client.MirControls
         {
             DialogChanged();
 
+            if (Program.Form == null || !Program.Form.IsHandleCreated) return;
+
             if (TextBox.Visible && TextBox.CanFocus)
-                if (Program.Form.ActiveControl == null || Program.Form.ActiveControl == Program.Form)
-                    Program.Form.ActiveControl = TextBox;
+            {
+                Program.Form.BeginInvoke(new Action(() =>
+                {
+                    if (TextBox.IsDisposed || !TextBox.Visible || !TextBox.CanFocus) return;
+                    if (Program.Form.ActiveControl == null || Program.Form.ActiveControl == Program.Form)
+                        Program.Form.ActiveControl = TextBox;
+                }));
+            }
 
             if (!TextBox.Visible)
-                if (Program.Form.ActiveControl == TextBox)
-                    Program.Form.Focus();
+            {
+                Program.Form.BeginInvoke(new Action(() =>
+                {
+                    if (TextBox.IsDisposed || TextBox.Visible) return;
+                    if (Program.Form.ActiveControl == TextBox)
+                        Program.Form.Focus();
+                }));
+            }
         }
         private void SetFocus(object sender, EventArgs e)
         {
@@ -420,22 +435,31 @@ namespace Client.MirControls
 
         public void DialogChanged()
         {
-            MirMessageBox box1 = null;
-            MirInputBox box2 = null;
-            MirAmountBox box3 = null;
-
-            if (MirScene.ActiveScene != null && MirScene.ActiveScene.Controls.Count > 0)
+            if (_applyingDialog) return;
+            _applyingDialog = true;
+            try
             {
-                box1 = (MirMessageBox) MirScene.ActiveScene.Controls.FirstOrDefault(ob => ob is MirMessageBox);
-                box2 = (MirInputBox) MirScene.ActiveScene.Controls.FirstOrDefault(O => O is MirInputBox);
-                box3 = (MirAmountBox) MirScene.ActiveScene.Controls.FirstOrDefault(ob => ob is MirAmountBox);
+                MirMessageBox box1 = null;
+                MirInputBox box2 = null;
+                MirAmountBox box3 = null;
+
+                if (MirScene.ActiveScene != null && MirScene.ActiveScene.Controls.Count > 0)
+                {
+                    box1 = (MirMessageBox) MirScene.ActiveScene.Controls.FirstOrDefault(ob => ob is MirMessageBox);
+                    box2 = (MirInputBox) MirScene.ActiveScene.Controls.FirstOrDefault(O => O is MirInputBox);
+                    box3 = (MirAmountBox) MirScene.ActiveScene.Controls.FirstOrDefault(ob => ob is MirAmountBox);
+                }
+
+
+                if ((box1 != null && box1 != Parent) || (box2 != null && box2 != Parent)  || (box3 != null && box3 != Parent))
+                    TextBox.Visible = false;
+                else
+                    ApplyNativeTextBoxState();
             }
-
-
-            if ((box1 != null && box1 != Parent) || (box2 != null && box2 != Parent)  || (box3 != null && box3 != Parent))
-                TextBox.Visible = false;
-            else
-                ApplyNativeTextBoxState();
+            finally
+            {
+                _applyingDialog = false;
+            }
         }
 
 

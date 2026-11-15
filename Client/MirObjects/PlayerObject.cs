@@ -803,35 +803,40 @@ namespace Client.MirObjects
                         index %= 3;
                     }
 
+                    // The animation frame only advances once per 100ms tick; ease the
+                    // offset across the tick so the world scrolls every frame instead
+                    // of jumping a frame's distance every tick.
+                    float phase = Math.Clamp((GameScene.MoveTime - CMain.Time) / 100F, 0F, 1F);
+                    float step = Math.Min(index + 2F - phase, count);
+
                     switch (Direction)
                     {
                         case MirDirection.Up:
-                            OffSetMove = new Point(0, (int)((MapControl.CellHeight * i / (float)(count)) * (index + 1)));
+                            OffSetMove = new Point(0, (int)((MapControl.CellHeight * i / (float)(count)) * step));
                             break;
                         case MirDirection.UpRight:
-                            OffSetMove = new Point((int)((-MapControl.CellWidth * i / (float)(count)) * (index + 1)), (int)((MapControl.CellHeight * i / (float)(count)) * (index + 1)));
+                            OffSetMove = new Point((int)((-MapControl.CellWidth * i / (float)(count)) * step), (int)((MapControl.CellHeight * i / (float)(count)) * step));
                             break;
                         case MirDirection.Right:
-                            OffSetMove = new Point((int)((-MapControl.CellWidth * i / (float)(count)) * (index + 1)), 0);
+                            OffSetMove = new Point((int)((-MapControl.CellWidth * i / (float)(count)) * step), 0);
                             break;
                         case MirDirection.DownRight:
-                            OffSetMove = new Point((int)((-MapControl.CellWidth * i / (float)(count)) * (index + 1)), (int)((-MapControl.CellHeight * i / (float)(count)) * (index + 1)));
+                            OffSetMove = new Point((int)((-MapControl.CellWidth * i / (float)(count)) * step), (int)((-MapControl.CellHeight * i / (float)(count)) * step));
                             break;
                         case MirDirection.Down:
-                            OffSetMove = new Point(0, (int)((-MapControl.CellHeight * i / (float)(count)) * (index + 1)));
+                            OffSetMove = new Point(0, (int)((-MapControl.CellHeight * i / (float)(count)) * step));
                             break;
                         case MirDirection.DownLeft:
-                            OffSetMove = new Point((int)((MapControl.CellWidth * i / (float)(count)) * (index + 1)), (int)((-MapControl.CellHeight * i / (float)(count)) * (index + 1)));
+                            OffSetMove = new Point((int)((MapControl.CellWidth * i / (float)(count)) * step), (int)((-MapControl.CellHeight * i / (float)(count)) * step));
                             break;
                         case MirDirection.Left:
-                            OffSetMove = new Point((int)((MapControl.CellWidth * i / (float)(count)) * (index + 1)), 0);
+                            OffSetMove = new Point((int)((MapControl.CellWidth * i / (float)(count)) * step), 0);
                             break;
                         case MirDirection.UpLeft:
-                            OffSetMove = new Point((int)((MapControl.CellWidth * i / (float)(count)) * (index + 1)), (int)((MapControl.CellHeight * i / (float)(count)) * (index + 1)));
+                            OffSetMove = new Point((int)((MapControl.CellWidth * i / (float)(count)) * step), (int)((MapControl.CellHeight * i / (float)(count)) * step));
                             break;
                     }
 
-                    OffSetMove = new Point(OffSetMove.X % 2 + OffSetMove.X, OffSetMove.Y % 2 + OffSetMove.Y);
                     break;
                 default:
                     OffSetMove = Point.Empty;
@@ -2313,7 +2318,6 @@ namespace Client.MirObjects
 
                     GameScene.Scene.MapControl.TextureValid = false;
 
-                    if (this == User) GameScene.Scene.MapControl.FloorValid = false;
                     if (SkipFrames) FrameIndex = Frame.Count;
 
                     if (UpdateFrame(false) >= Frame.Count)
@@ -2335,7 +2339,6 @@ namespace Client.MirObjects
                  case MirAction.Jump:
                     if (!GameScene.CanMove) return;
                     GameScene.Scene.MapControl.TextureValid = false;
-                    if (this == User) GameScene.Scene.MapControl.FloorValid = false;
                     if (SkipFrames) UpdateFrame();
                     if (UpdateFrame() >= Frame.Count)
                     {
@@ -2357,7 +2360,6 @@ namespace Client.MirObjects
 
                     GameScene.Scene.MapControl.TextureValid = false;
 
-                    if (this == User) GameScene.Scene.MapControl.FloorValid = false;
                     if (UpdateFrame() >= 3)
                     {
                         FrameIndex = 2;
@@ -2371,8 +2373,6 @@ namespace Client.MirObjects
 
                     GameScene.Scene.MapControl.TextureValid = false;
 
-                    if (this == User) GameScene.Scene.MapControl.FloorValid = false;
-
                     if (UpdateFrame() >= 6)
                     {
                         FrameIndex = 5;
@@ -2385,8 +2385,6 @@ namespace Client.MirObjects
                     if (!GameScene.CanMove) return;
 
                     GameScene.Scene.MapControl.TextureValid = false;
-
-                    if (this == User) GameScene.Scene.MapControl.FloorValid = false;
 
                     FrameIndex -= 2;
                     EffectFrameIndex -= 2;

@@ -292,7 +292,7 @@ namespace Client.MirGraphics
             DXManager.Parameters.Windowed = !Settings.FullScreen;
             DXManager.Parameters.BackBufferWidth = clientSize.Width;
             DXManager.Parameters.BackBufferHeight = clientSize.Height;
-            DXManager.Parameters.PresentationInterval = Settings.FPSCap ? PresentInterval.Default : PresentInterval.Immediate;
+            DXManager.Parameters.PresentationInterval = Settings.FPSCap ? PresentInterval.One : PresentInterval.Immediate;
             DXManager.Device.Reset(DXManager.Parameters);
 
             DXManager.LoadTextures();

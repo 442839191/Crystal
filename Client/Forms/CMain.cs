@@ -9,6 +9,7 @@ using Client.MirControls;
 using Client.MirGraphics;
 using Client.MirNetwork;
 using Client.MirScenes;
+using Client.Utils;
 using Client.MirSounds;
 using SlimDX.Direct3D9;
 using SlimDX.Windows;
@@ -106,13 +107,21 @@ namespace Client
                 while (AppStillIdle)
                 {
                     UpdateTime();
+
+                    long updateStart = Perf.Now();
                     UpdateEnviroment();
+                    long updateEnd = Perf.Now();
+
+                    long renderStart = updateEnd;
 
                     if (IsDrawTime())
                     {
                         RenderEnvironment();
                         UpdateFrameTime();
                     }
+
+                    Perf.Frame(updateEnd - updateStart, Perf.Now() - renderStart);
+                    Perf.Dump();
                 }
 
             }
@@ -344,6 +353,10 @@ namespace Client
 
         private static bool IsDrawTime()
         {
+            // With FPSCap the vsync-blocking Present already paces rendering; an extra
+            // gate here mismatches the refresh rate and causes uneven frame pacing.
+            if (Settings.FPSCap) return true;
+
             int targetUpdates = 1000 / Math.Max(1, Settings.MaxFPS);
 
             if (Time >= _drawTime)

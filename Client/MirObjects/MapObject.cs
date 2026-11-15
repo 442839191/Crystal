@@ -10,7 +10,7 @@ namespace Client.MirObjects
     public abstract class MapObject
     {
         public static Font ChatFont = new Font(Settings.FontName, 10F);
-        public static List<MirLabel> LabelList = new List<MirLabel>();
+        public static Dictionary<LabelKey, MirLabel> LabelList = new Dictionary<LabelKey, MirLabel>();
 
         public static UserObject User;
         public static UserHeroObject Hero;
@@ -396,16 +396,10 @@ namespace Client.MirObjects
         protected static MirLabel GetOrCreateLabel(string text, Color foreColour, Color backColour, bool border, bool outline)
         {
             // Cached labels are shared: select the complete style instead of mutating it.
-            for (int i = 0; i < LabelList.Count; i++)
-            {
-                var cached = LabelList[i];
-                if (cached.IsDisposed || cached.Text != text || cached.ForeColour != foreColour ||
-                    cached.BackColour != backColour || cached.Border != border ||
-                    cached.OutLine != outline || cached.OutLineColour != Color.Black ||
-                    (border && cached.BorderColour != Color.Black)) continue;
+            var key = new LabelKey(text, foreColour, backColour, border, outline);
 
+            if (LabelList.TryGetValue(key, out MirLabel cached) && !cached.IsDisposed)
                 return cached;
-            }
 
             var label = new MirLabel
             {
@@ -418,9 +412,49 @@ namespace Client.MirObjects
                 OutLine = outline,
                 OutLineColour = Color.Black,
             };
-            label.Disposing += (o, e) => LabelList.Remove(label);
-            LabelList.Add(label);
+            label.Disposing += (o, e) => LabelList.Remove(key);
+            LabelList[key] = label;
             return label;
+        }
+
+        public readonly struct LabelKey : IEquatable<LabelKey>
+        {
+            private readonly string _text;
+            private readonly int _fore, _back;
+            private readonly bool _border, _outline;
+
+            public LabelKey(string text, Color foreColour, Color backColour, bool border, bool outline)
+            {
+                _text = text;
+                _fore = foreColour.ToArgb();
+                _back = backColour.ToArgb();
+                _border = border;
+                _outline = outline;
+            }
+
+            public bool Equals(LabelKey other)
+            {
+                return string.Equals(_text, other._text) && _fore == other._fore && _back == other._back &&
+                       _border == other._border && _outline == other._outline;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is LabelKey other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash = _text != null ? _text.GetHashCode() : 0;
+                    hash = (hash * 397) ^ _fore;
+                    hash = (hash * 397) ^ _back;
+                    hash = (hash * 397) ^ (_border ? 1 : 0);
+                    hash = (hash * 397) ^ (_outline ? 2 : 0);
+                    return hash;
+                }
+            }
         }
 
         public virtual void CreateLabel()

@@ -1195,6 +1195,26 @@ namespace Client.MirScenes
             else
                 CanMove = false;
 
+            // The world offset is eased across the tick while moving, so the scene and the
+            // floor bake (which bakes that offset in) have to run every frame for the
+            // scroll to stay continuous instead of stepping once per tick.
+            switch (User.CurrentAction)
+            {
+                case MirAction.Walking:
+                case MirAction.Running:
+                case MirAction.MountWalking:
+                case MirAction.MountRunning:
+                case MirAction.Pushed:
+                case MirAction.Sneek:
+                case MirAction.Jump:
+                case MirAction.DashL:
+                case MirAction.DashR:
+                case MirAction.DashAttack:
+                    MapControl.TextureValid = false;
+                    MapControl.FloorValid = false;
+                    break;
+            }
+
             if (CMain.Time >= CMain.NextPing)
             {
                 CMain.NextPing = CMain.Time + 60000;
@@ -10581,6 +10601,9 @@ namespace Client.MirScenes
         {
             if (User == null) return;
 
+            long perfStart = Perf.Now();
+            int perfDraws = CMain.DPSCounter;
+
             if (!FloorValid)
                 DrawFloor();
 
@@ -10605,6 +10628,11 @@ namespace Client.MirScenes
             if (FloorValid)
             {
                 DXManager.Draw(DXManager.FloorTexture, new Rectangle(0, 0, Settings.ScreenWidth, Settings.ScreenHeight), Vector3.Zero, Color.White);
+
+                Perf.OffX = User.OffSetMove.X;
+                Perf.OffY = User.OffSetMove.Y;
+                Perf.MvX = User.Movement.X;
+                Perf.MvY = User.Movement.Y;
             }
 
             DrawObjects();
@@ -10663,6 +10691,9 @@ namespace Client.MirScenes
             surface.Dispose();
             TextureValid = true;
 
+            Perf.BakeCount++;
+            Perf.BakeTicks += Perf.Now() - perfStart;
+            Perf.DrawCount += CMain.DPSCounter - perfDraws;
         }
         protected internal override void DrawControl()
         {
@@ -10688,6 +10719,8 @@ namespace Client.MirScenes
 
         private void DrawFloor()
         {
+            long perfStart = Perf.Now();
+
             if (DXManager.FloorTexture == null || DXManager.FloorTexture.Disposed)
             {
                 DXManager.FloorTexture = new Texture(DXManager.Device, Settings.ScreenWidth, Settings.ScreenHeight, 1, Usage.RenderTarget, Format.A8R8G8B8, Pool.Default);
@@ -10792,6 +10825,9 @@ namespace Client.MirScenes
 
             DXManager.SetSurface(oldSurface);
             FloorValid = true;
+
+            Perf.FloorBakeCount++;
+            Perf.FloorTicks += Perf.Now() - perfStart;
         }
         private void DrawBackground()
         {
@@ -10817,6 +10853,8 @@ namespace Client.MirScenes
 
         private void DrawObjects()
         {
+            long perfStart = Perf.Now();
+
             if (Settings.Effect)
             {
                 for (int i = Effects.Count - 1; i >= 0; i--)
@@ -11036,6 +11074,8 @@ namespace Client.MirScenes
             {
                 ob.DrawHealth();
             }
+
+            Perf.ObjectTicks += Perf.Now() - perfStart;
         }
 
         private Color GetBlindLight(Color light)
@@ -11055,6 +11095,8 @@ namespace Client.MirScenes
         private void DrawLights(LightSetting setting)
         {
             if (DXManager.Lights == null || DXManager.Lights.Count == 0) return;
+
+            long perfStart = Perf.Now();
 
             if (DXManager.LightTexture == null || DXManager.LightTexture.Disposed)
             {
@@ -11302,6 +11344,8 @@ namespace Client.MirScenes
 
             DXManager.Sprite.End();
             DXManager.Sprite.Begin(SpriteFlags.AlphaBlend);
+
+            Perf.LightTicks += Perf.Now() - perfStart;
         }
 
         private static void OnMouseClick(object sender, EventArgs e)

@@ -1,6 +1,7 @@
 ﻿using SlimDX;
 using SlimDX.Direct3D9;
 using System.IO.Compression;
+using Client.Utils;
 using Frame = Client.MirObjects.Frame;
 using Client.MirObjects;
 using System.Text.RegularExpressions;
@@ -904,6 +905,8 @@ namespace Client.MirGraphics
 
         public unsafe void CreateTexture(BinaryReader reader)
         {
+            long perfStart = Perf.Now();
+
             int w = Width;// + (4 - Width % 4) % 4;
             int h = Height;// + (4 - Height % 4) % 4;
 
@@ -935,6 +938,8 @@ namespace Client.MirGraphics
             TextureValid = true;
 
             CleanTime = CMain.Time + Settings.CleanDelay;
+
+            Perf.TextureLoad(perfStart, Perf.Now());
         }
 
         public unsafe void DisposeTexture()
