@@ -1,0 +1,211 @@
+@page
+@model Server.Headless.Pages.IndexModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crystal 服务端管理</title>
+    <link rel="stylesheet" href="/site.css" />
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="logo">C</span>
+            <div>
+                <strong>Crystal 服务端管理</strong>
+                <small class="muted">Linux 无界面宿主</small>
+            </div>
+        </div>
+        <div class="top-actions">
+            <span id="serverBadge" class="badge">连接中</span>
+            <span class="muted">@Model.Username</span>
+            <form method="post" asp-page="/Logout">
+                <button type="submit" class="ghost">退出</button>
+            </form>
+        </div>
+    </header>
+
+    @if (Model.MustChangePassword)
+    {
+        <div id="defaultPasswordWarning" class="alert warn">
+            当前仍在使用默认管理员密码，请到“设置”页立即修改。
+        </div>
+    }
+
+    <div class="shell">
+        <nav class="sidebar">
+            <button class="nav active" data-tab="overview">概览</button>
+            <button class="nav" data-tab="accounts">账号管理</button>
+            <button class="nav" data-tab="players">在线玩家</button>
+            <button class="nav" data-tab="logs">运行日志</button>
+            <button class="nav" data-tab="database">数据库</button>
+            <button class="nav" data-tab="settings">设置</button>
+        </nav>
+
+        <main class="content">
+            <section id="tab-overview" class="tab active">
+                <div class="section-head">
+                    <h2>运行概览</h2>
+                    <div class="actions">
+                        <button id="btnStart" class="primary">启动服务端</button>
+                        <button id="btnStop" class="danger">停止服务端</button>
+                        <button id="btnRefreshStatus" class="ghost">刷新</button>
+                    </div>
+                </div>
+                <div class="cards">
+                    <div class="card"><span>运行状态</span><strong id="statRunning">-</strong></div>
+                    <div class="card"><span>在线玩家</span><strong id="statPlayers">-</strong></div>
+                    <div class="card"><span>账号总数</span><strong id="statAccounts">-</strong></div>
+                    <div class="card"><span>已载入地图</span><strong id="statMaps">-</strong></div>
+                    <div class="card"><span>怪物数量</span><strong id="statMonsters">-</strong></div>
+                    <div class="card"><span>运行时长</span><strong id="statUptime">-</strong></div>
+                </div>
+                <table class="data-table compact">
+                    <tbody>
+                        <tr><th>游戏监听</th><td id="infoServer">-</td></tr>
+                        <tr><th>Web 管理端</th><td id="infoWeb">-</td></tr>
+                        <tr><th>数据库版本</th><td id="infoVersion">-</td></tr>
+                    </tbody>
+                </table>
+                <p class="hint">启动/停止会直接控制当前进程内的游戏服务端；停止后在线玩家会断开。</p>
+            </section>
+
+            <section id="tab-accounts" class="tab">
+                <div class="section-head">
+                    <h2>账号管理</h2>
+                    <div class="actions">
+                        <input id="accountQ" placeholder="账号 / 用户名 / IP" />
+                        <select id="accountBanned">
+                            <option value="">全部状态</option>
+                            <option value="false">正常</option>
+                            <option value="true">已封禁</option>
+                        </select>
+                        <button id="btnSearchAccounts" class="primary">搜索</button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>ID</th><th>账号</th><th>用户名</th><th>状态</th><th>角色</th><th>最后 IP</th><th>最后登录</th><th>操作</th></tr>
+                        </thead>
+                        <tbody id="accountsBody"></tbody>
+                    </table>
+                </div>
+                <div id="accountsPager" class="pager"></div>
+            </section>
+
+            <section id="tab-players" class="tab">
+                <div class="section-head">
+                    <h2>在线玩家</h2>
+                    <div class="actions">
+                        <button id="btnRefreshPlayers" class="ghost">刷新</button>
+                    </div>
+                </div>
+                <div class="actions inline">
+                    <input id="broadcastMessage" placeholder="发送全服公告" class="grow" />
+                    <button id="btnBroadcast" class="primary">全服公告</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>角色</th><th>账号</th><th>等级</th><th>职业</th><th>地图</th><th>坐标</th><th>HP/MP</th><th>IP</th><th>操作</th></tr>
+                        </thead>
+                        <tbody id="playersBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="tab-logs" class="tab">
+                <div class="section-head">
+                    <h2>运行日志</h2>
+                    <div class="actions">
+                        <select id="logType">
+                            <option value="server">Server</option>
+                            <option value="chat">Chat</option>
+                            <option value="player">Player</option>
+                            <option value="debug">Debug</option>
+                            <option value="spawn">Spawn</option>
+                        </select>
+                        <select id="logLines">
+                            <option value="200">200 行</option>
+                            <option value="500">500 行</option>
+                            <option value="1000">1000 行</option>
+                        </select>
+                        <button id="btnRefreshLogs" class="primary">刷新</button>
+                    </div>
+                </div>
+                <p id="logFile" class="muted"></p>
+                <pre id="logContent" class="log-box">加载中...</pre>
+            </section>
+
+            <section id="tab-database" class="tab">
+                <div class="section-head">
+                    <h2>数据库浏览</h2>
+                    <span class="muted">只读</span>
+                </div>
+                <div class="cards small">
+                    <div class="card"><span>物品</span><strong id="dbItems">-</strong></div>
+                    <div class="card"><span>怪物</span><strong id="dbMonsters">-</strong></div>
+                    <div class="card"><span>地图</span><strong id="dbMaps">-</strong></div>
+                    <div class="card"><span>NPC</span><strong id="dbNpcs">-</strong></div>
+                    <div class="card"><span>任务</span><strong id="dbQuests">-</strong></div>
+                    <div class="card"><span>行会</span><strong id="dbGuilds">-</strong></div>
+                </div>
+                <div class="subtabs">
+                    <button class="subnav active" data-db="items">物品</button>
+                    <button class="subnav" data-db="monsters">怪物</button>
+                    <button class="subnav" data-db="maps">地图</button>
+                    <button class="subnav" data-db="npcs">NPC</button>
+                </div>
+                <div class="actions inline">
+                    <input id="dbQ" placeholder="输入名称或编号搜索" class="grow" />
+                    <button id="btnSearchDb" class="primary">搜索</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table">
+                        <thead id="dbHead"></thead>
+                        <tbody id="dbBody"></tbody>
+                    </table>
+                </div>
+                <div id="dbPager" class="pager"></div>
+            </section>
+
+            <section id="tab-settings" class="tab">
+                <div class="section-head"><h2>设置</h2></div>
+                <div class="panel">
+                    <h3>服务端配置</h3>
+                    <table class="data-table compact" id="configTable"></table>
+                    <p class="hint">配置修改需要编辑 Configs/Setup.ini 并重启服务端；Web 端当前只读展示。</p>
+                </div>
+                <div class="panel">
+                    <h3>管理员密码</h3>
+                    <form id="pwForm" class="form-grid">
+                        <label>当前密码</label>
+                        <input id="currentPassword" type="password" autocomplete="current-password" />
+                        <label>新密码</label>
+                        <input id="newPassword" type="password" autocomplete="new-password" />
+                        <label>确认新密码</label>
+                        <input id="confirmPassword" type="password" autocomplete="new-password" />
+                        <div></div>
+                        <button type="submit" class="primary">修改密码</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <dialog id="accountDialog" class="dialog">
+        <div class="section-head">
+            <h3>账号详情</h3>
+            <button id="btnCloseDialog" class="ghost">关闭</button>
+        </div>
+        <div id="accountDetail"></div>
+    </dialog>
+
+    <script src="/admin.js"></script>
+</body>
+</html>

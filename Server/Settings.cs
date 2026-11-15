@@ -618,7 +618,7 @@ namespace Server
             LoadWorldMap();
             LoadHeroSettings();
 
-            string languageDirectory = @".\Localization\";
+            string languageDirectory = Path.Combine(".", "Localization");
             if (!Directory.Exists(languageDirectory))
             {
                 Directory.CreateDirectory(languageDirectory);

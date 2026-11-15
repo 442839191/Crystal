@@ -5,6 +5,7 @@ using Server.MirDatabase;
 using Server.MirNetwork;
 using Server.MirObjects;
 using Server.MirObjects.Monsters;
+using Server.Utils;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
@@ -2641,7 +2642,7 @@ namespace Server.MirEnvir
 					var mStream = new MemoryStream();
                     var writer = new BinaryWriter(mStream);
 					GuildList[i].Save(writer);
-                    var fStream = new FileStream(Path.Combine(Settings.GuildPath, i + ".mgdn"), FileMode.Create);
+                    var fStream = new FileStream(PathHelper.Combine(Settings.GuildPath, i + ".mgdn"), FileMode.Create);
                     var data = mStream.ToArray();
                     fStream.BeginWrite(data, 0, data.Length, EndSaveGuildsAsync, fStream);
                 }
@@ -2689,7 +2690,7 @@ namespace Server.MirEnvir
 
                     if (!npc.NeedSave) continue;
 
-                    var path = Path.Combine(Settings.GoodsPath, npc.Info.Index + ".msdn");
+                    var path = PathHelper.Combine(Settings.GoodsPath, npc.Info.Index + ".msdn");
 
                     var mStream = new MemoryStream();
                     var writer = new BinaryWriter(mStream);
@@ -2741,7 +2742,7 @@ namespace Server.MirEnvir
                 var mStream = new MemoryStream();
                 var writer = new BinaryWriter(mStream);
                 ConquestList[i].Save(writer);
-                var fStream = new FileStream(Path.Combine(Settings.ConquestsPath, ConquestList[i].Info.Index + ".mcdn"), FileMode.Create);
+                var fStream = new FileStream(PathHelper.Combine(Settings.ConquestsPath, ConquestList[i].Info.Index + ".mcdn"), FileMode.Create);
                 var data = mStream.ToArray();
                 fStream.BeginWrite(data, 0, data.Length, EndSaveConquestsAsync, fStream);
             }
@@ -3097,9 +3098,9 @@ namespace Server.MirEnvir
                 for (var i = 0; i < GuildCount; i++)
                 {
                     GuildInfo guildInfo;
-                    if (!File.Exists(Path.Combine(Settings.GuildPath, i + ".mgd"))) continue;
+                    if (!File.Exists(PathHelper.Combine(Settings.GuildPath, i + ".mgd"))) continue;
 
-                    using (var stream = File.OpenRead(Path.Combine(Settings.GuildPath, i + ".mgd")))
+                    using (var stream = File.OpenRead(PathHelper.Combine(Settings.GuildPath, i + ".mgd")))
                     {
                         using var reader = new BinaryReader(stream);
                         guildInfo = new GuildInfo(reader);
@@ -3131,9 +3132,9 @@ namespace Server.MirEnvir
 
                     if (tempMap == null) continue;
 
-                    if (File.Exists(Path.Combine(Settings.ConquestsPath, ConquestInfoList[i].Index + ".mcd")))
+                    if (File.Exists(PathHelper.Combine(Settings.ConquestsPath, ConquestInfoList[i].Index + ".mcd")))
                     {
-                        using (var stream = File.OpenRead(Path.Combine(Settings.ConquestsPath, ConquestInfoList[i].Index + ".mcd")))
+                        using (var stream = File.OpenRead(PathHelper.Combine(Settings.ConquestsPath, ConquestInfoList[i].Index + ".mcd")))
                         {
                             using var reader = new BinaryReader(stream);
                             conquestGuildInfo = new ConquestGuildInfo(reader) { Info = ConquestInfoList[i] };
@@ -3189,7 +3190,7 @@ namespace Server.MirEnvir
         {
             DisabledCharNames.Clear();
 
-            var path = Path.Combine(Settings.EnvirPath, "DisabledChars.txt");
+            var path = PathHelper.Combine(Settings.EnvirPath, "DisabledChars.txt");
 
             if (!File.Exists(path))
             {
@@ -3211,7 +3212,7 @@ namespace Server.MirEnvir
         {
             LineMessages.Clear();
 
-            var path = Path.Combine(Settings.EnvirPath, "LineMessage.txt");
+            var path = PathHelper.Combine(Settings.EnvirPath, "LineMessage.txt");
 
             if (!File.Exists(path))
             {
@@ -5406,11 +5407,11 @@ namespace Server.MirEnvir
         {
             for (var i = 0; i < MonsterInfoList.Count; i++)
             {
-                string path = Path.Combine(Settings.DropPath, MonsterInfoList[i].Name + ".txt");
+                string path = PathHelper.Combine(Settings.DropPath, MonsterInfoList[i].Name + ".txt");
 
                 if (!string.IsNullOrEmpty(MonsterInfoList[i].DropPath))
                 {
-                    path = Path.Combine(Settings.DropPath, MonsterInfoList[i].DropPath + ".txt");
+                    path = PathHelper.Combine(Settings.DropPath, MonsterInfoList[i].DropPath + ".txt");
                 }
 
                 MonsterInfoList[i].Drops.Clear();
@@ -5421,20 +5422,20 @@ namespace Server.MirEnvir
             FishingDrops.Clear();
             for (int i = 0; i < 19; i++)
             {
-                var path = Path.Combine(Settings.DropPath, Settings.FishingDropFilename + ".txt");
+                var path = PathHelper.Combine(Settings.DropPath, Settings.FishingDropFilename + ".txt");
                 path = path.Replace("00", i.ToString("D2"));
 
                 DropInfo.Load(FishingDrops, $"Fishing {i}", path, (byte)i, i < 2);
             }
 
             AwakeningDrops.Clear();
-            DropInfo.Load(AwakeningDrops, "Awakening", Path.Combine(Settings.DropPath, Settings.AwakeningDropFilename + ".txt"));
+            DropInfo.Load(AwakeningDrops, "Awakening", PathHelper.Combine(Settings.DropPath, Settings.AwakeningDropFilename + ".txt"));
 
             StrongboxDrops.Clear();
-            DropInfo.Load(StrongboxDrops, "StrongBox", Path.Combine(Settings.DropPath, Settings.StrongboxDropFilename + ".txt"));
+            DropInfo.Load(StrongboxDrops, "StrongBox", PathHelper.Combine(Settings.DropPath, Settings.StrongboxDropFilename + ".txt"));
 
             BlackstoneDrops.Clear();
-            DropInfo.Load(BlackstoneDrops, "Blackstone", Path.Combine(Settings.DropPath, Settings.BlackstoneDropFilename + ".txt"));
+            DropInfo.Load(BlackstoneDrops, "Blackstone", PathHelper.Combine(Settings.DropPath, Settings.BlackstoneDropFilename + ".txt"));
 
             MessageQueue.Enqueue(GameLanguage.ServerTextMap.GetLocalization(ServerTextKeys.DropsLoaded));
         }
@@ -5443,7 +5444,7 @@ namespace Server.MirEnvir
         {
             LineMessages.Clear();
 
-            var path = Path.Combine(Settings.EnvirPath, "LineMessage.txt");
+            var path = PathHelper.Combine(Settings.EnvirPath, "LineMessage.txt");
 
             if (!File.Exists(path))
             {

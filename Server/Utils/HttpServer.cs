@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Server.MirEnvir;
+using Server.Utils;
 using S = ServerPackets;
 
 namespace Server.Library.Utils
@@ -97,7 +98,7 @@ namespace Server.Library.Utils
 
         void AddNameList(string playerName, string fileName)
         {
-            fileName = Path.Combine(Settings.NameListPath, fileName);
+            fileName = PathHelper.Combine(Settings.NameListPath, fileName);
             var sDirectory = Path.GetDirectoryName(fileName);
             Directory.CreateDirectory(sDirectory ?? throw new InvalidOperationException());
             if (!File.Exists(fileName))

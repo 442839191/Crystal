@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Server.MirEnvir;
+using Server.Utils;
 
 namespace Server.MirDatabase
 {
@@ -495,7 +496,7 @@ namespace Server.MirDatabase
 
                 var subPath = match.Groups[1].Value;
 
-                string path = Path.Combine(Settings.DropPath, subPath);
+                string path = PathHelper.Combine(Settings.DropPath, subPath);
 
                 newLines = File.ReadAllLines(path).ToList();
 

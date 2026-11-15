@@ -1,0 +1,29 @@
+@page
+@model Server.Headless.Pages.LoginModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>登录 - Crystal 服务端管理</title>
+    <link rel="stylesheet" href="/site.css" />
+</head>
+<body class="login-page">
+    <form class="login-card" method="post">
+        <h1>Crystal 服务端管理</h1>
+        <p class="muted">Linux 无界面服务端 · Web 管理端</p>
+        @if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <div class="alert error">@Model.Error</div>
+        }
+        <label>管理员账号</label>
+        <input asp-for="Username" autocomplete="username" autofocus />
+        <label>密码</label>
+        <input asp-for="Password" type="password" autocomplete="current-password" />
+        <button type="submit" class="primary">登录</button>
+    </form>
+</body>
+</html>

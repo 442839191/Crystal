@@ -1,6 +1,7 @@
 using System.Drawing;
 ﻿using Server.MirDatabase;
 using Server.MirObjects;
+using Server.Utils;
 using Shared;
 using S = ServerPackets;
 
@@ -433,7 +434,20 @@ namespace Server.MirEnvir
         {
             try
             {
-                string fileName = Path.Combine(Settings.MapPath, Info.FileName + ".map");
+                string fileName = PathHelper.Combine(Settings.MapPath, Info.FileName + ".map");
+                if (!File.Exists(fileName) && Directory.Exists(Settings.MapPath))
+                {
+                    string target = Info.FileName + ".map";
+                    try
+                    {
+                        string match = Directory.EnumerateFiles(Settings.MapPath, "*", SearchOption.TopDirectoryOnly)
+                            .FirstOrDefault(x => string.Equals(Path.GetFileName(x), target, StringComparison.OrdinalIgnoreCase));
+                        if (match != null) fileName = match;
+                    }
+                    catch
+                    {
+                    }
+                }
                 if (File.Exists(fileName))
                 {
                     byte[] fileBytes = File.ReadAllBytes(fileName);
@@ -2573,7 +2587,7 @@ namespace Server.MirEnvir
 
             if (string.IsNullOrEmpty(Info.RoutePath)) return;
 
-            string fileName = Path.Combine(Settings.RoutePath, Info.RoutePath + ".txt");
+            string fileName = PathHelper.Combine(Settings.RoutePath, Info.RoutePath + ".txt");
 
             if (!File.Exists(fileName)) return;
 

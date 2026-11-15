@@ -1,6 +1,7 @@
 ﻿using Server.MirObjects;
 using System.Text.RegularExpressions;
 using Server.MirEnvir;
+using Server.Utils;
 
 namespace Server.MirDatabase
 {
@@ -133,7 +134,7 @@ namespace Server.MirDatabase
 
             if (!Directory.Exists(Settings.QuestPath)) return;
 
-            string fileName = Path.Combine(Settings.QuestPath, FileName + ".txt");
+            string fileName = PathHelper.Combine(Settings.QuestPath, FileName + ".txt");
 
             if (File.Exists(fileName))
             {

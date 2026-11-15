@@ -1,6 +1,7 @@
 using System.Drawing;
 using Server.MirDatabase;
 using Server.MirEnvir;
+using Server.Utils;
 using System.Text.RegularExpressions;
 using S = ServerPackets;
 
@@ -139,7 +140,7 @@ namespace Server.MirObjects
 
             if (!Directory.Exists(Settings.NPCPath)) return;
 
-            string fileName = Path.Combine(Settings.NPCPath, FileName + ".txt");
+            string fileName = PathHelper.Combine(Settings.NPCPath, FileName + ".txt");
 
             if (File.Exists(fileName))
             {
@@ -185,7 +186,7 @@ namespace Server.MirObjects
             {
                 loadedNPC.UsedGoods.Clear();
 
-                string path = Path.Combine(Settings.GoodsPath, loadedNPC.Info.Index.ToString() + ".msd");
+                string path = PathHelper.Combine(Settings.GoodsPath, loadedNPC.Info.Index.ToString() + ".msd");
 
                 if (!File.Exists(path)) return;
 
@@ -312,7 +313,7 @@ namespace Server.MirObjects
 
                 if (split.Length < 2) continue;
 
-                string path = Path.Combine(Settings.EnvirPath, split[1].Substring(1, split[1].Length - 2));
+                string path = PathHelper.Combine(Settings.EnvirPath, split[1].Substring(1, split[1].Length - 2));
 
                 if (!File.Exists(path))
                     MessageQueue.Enqueue(GameLanguage.ServerTextMap.GetLocalization((ServerTextKeys.InsertScriptNotFound), path));
@@ -335,7 +336,7 @@ namespace Server.MirObjects
 
                 string[] split = lines[i].Split(' ');
 
-                string path = Path.Combine(Settings.EnvirPath, split[1].Substring(1, split[1].Length - 2));
+                string path = PathHelper.Combine(Settings.EnvirPath, split[1].Substring(1, split[1].Length - 2));
                 string page = ("[" + split[2] + "]").ToUpper();
 
                 bool start = false, finish = false;

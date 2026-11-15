@@ -1,6 +1,7 @@
 using System.Drawing;
 ﻿using Server.MirDatabase;
 using Server.MirEnvir;
+using Server.Utils;
 using System.Globalization;
 using System.Numerics;
 using System.Text.RegularExpressions;
@@ -186,7 +187,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    var fileName = Path.Combine(Settings.NameListPath, listPath);
+                    var fileName = PathHelper.Combine(Settings.NameListPath, listPath);
 
                     string sDirectory = Path.GetDirectoryName(fileName);
                     Directory.CreateDirectory(sDirectory);
@@ -206,7 +207,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    fileName = Path.Combine(Settings.NameListPath, listPath);
+                    fileName = PathHelper.Combine(Settings.NameListPath, listPath);
 
                     sDirectory = Path.GetDirectoryName(fileName);
                     Directory.CreateDirectory(sDirectory);
@@ -565,7 +566,7 @@ namespace Server.MirObjects
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
                     }
 
-                    fileName = Path.Combine(Settings.NPCPath, listPath + ".txt");
+                    fileName = PathHelper.Combine(Settings.NPCPath, listPath + ".txt");
 
                     if (!File.Exists(fileName)) return;
 
@@ -591,7 +592,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    fileName = Path.Combine(Settings.NameListPath, listPath);
+                    fileName = PathHelper.Combine(Settings.NameListPath, listPath);
 
                     string sDirectory = Path.GetDirectoryName(fileName);
                     Directory.CreateDirectory(sDirectory);
@@ -613,7 +614,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    fileName = Path.Combine(Settings.NameListPath, listPath);
+                    fileName = PathHelper.Combine(Settings.NameListPath, listPath);
 
                     sDirectory = Path.GetDirectoryName(fileName);
                     Directory.CreateDirectory(sDirectory);
@@ -634,7 +635,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    fileName = Path.Combine(Settings.NameListPath, listPath);
+                    fileName = PathHelper.Combine(Settings.NameListPath, listPath);
 
                     sDirectory = Path.GetDirectoryName(fileName);
                     Directory.CreateDirectory(sDirectory);
@@ -654,7 +655,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    fileName = Path.Combine(Settings.NameListPath, listPath);
+                    fileName = PathHelper.Combine(Settings.NameListPath, listPath);
 
                     sDirectory = Path.GetDirectoryName(fileName);
                     Directory.CreateDirectory(sDirectory);
@@ -673,7 +674,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    fileName = Path.Combine(Settings.NameListPath, listPath);
+                    fileName = PathHelper.Combine(Settings.NameListPath, listPath);
 
                     sDirectory = Path.GetDirectoryName(fileName);
                     Directory.CreateDirectory(sDirectory);
@@ -692,7 +693,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    fileName = Path.Combine(Settings.NameListPath, listPath);
+                    fileName = PathHelper.Combine(Settings.NameListPath, listPath);
 
                     sDirectory = Path.GetDirectoryName(fileName);
                     Directory.CreateDirectory(sDirectory);
@@ -1007,7 +1008,7 @@ namespace Server.MirObjects
 
                     if (quoteMatch.Success)
                     {
-                        fileName = Path.Combine(Settings.ValuePath, quoteMatch.Groups[1].Captures[0].Value);
+                        fileName = PathHelper.Combine(Settings.ValuePath, quoteMatch.Groups[1].Captures[0].Value);
 
                         string group = parts[parts.Length - 2];
                         string key = parts[parts.Length - 1];
@@ -1029,7 +1030,7 @@ namespace Server.MirObjects
 
                     if (matchCol.Count > 0 && matchCol[0].Success)
                     {
-                        fileName = Path.Combine(Settings.ValuePath, matchCol[0].Groups[1].Captures[0].Value);
+                        fileName = PathHelper.Combine(Settings.ValuePath, matchCol[0].Groups[1].Captures[0].Value);
 
                         string value = parts[parts.Length - 1];
 
@@ -1148,7 +1149,7 @@ namespace Server.MirObjects
                     if (quoteMatch.Success)
                         listPath = quoteMatch.Groups[1].Captures[0].Value;
 
-                    fileName = Path.Combine(Settings.DropPath, listPath);
+                    fileName = PathHelper.Combine(Settings.DropPath, listPath);
 
                     acts.Add(new NPCActions(ActionType.Drop, fileName));
                     break;
@@ -4329,7 +4330,7 @@ namespace Server.MirObjects
                         break;
                     case ActionType.GetRandomText:
                         {
-                            string randomTextPath = Path.Combine(Settings.NPCPath, param[0]);
+                            string randomTextPath = PathHelper.Combine(Settings.NPCPath, param[0]);
                             if (!File.Exists(randomTextPath))
                             {
                                 MessageQueue.Enqueue(GameLanguage.ServerTextMap.GetLocalization((ServerTextKeys.RandomTextFileNotExist), randomTextPath));
